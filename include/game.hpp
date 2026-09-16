@@ -3,13 +3,14 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 
+#include "scene_manager.hpp"
 
 class Game
 {
 private:
     std::unique_ptr<sf::RenderWindow> m_window;
-    std::unique_ptr<sf::Sprite> m_sprite;
-    std::unique_ptr<sf::Texture> m_texture;
+    sf::Clock m_clock;
+    SceneManager m_sceneManager;
 
     void pollEvent();
     void update(float dt);
@@ -17,7 +18,10 @@ private:
 
 public:
     explicit Game(const std::string& title, const sf::Vector2u& size);
-    ~Game();
+    ~Game()=default;
 
     void execute();
+
+    [[nodiscard]] sf::RenderWindow& getWindow() const;
+    SceneManager& getSceneManager();
 };

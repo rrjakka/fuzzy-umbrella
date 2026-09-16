@@ -11,10 +11,14 @@ FetchContent_Declare(SFML
 )
 FetchContent_MakeAvailable(SFML)
 
-add_executable(
-        fuzzy-umbrella
+add_executable(fuzzy-umbrella
         src/main.cpp
-        src/game.cpp include/game.hpp
+        src/game.cpp                        include/game.hpp
+
+        src/scene.cpp                       include/scene.hpp
+        src/scene_manager.cpp               include/scene_manager.hpp
+        src/scenes/menu_scene.cpp           include/scenes/menu_scene.hpp
+        src/scenes/game_scene.cpp           include/scenes/game_scene.hpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE sfml-system sfml-window sfml-graphics sfml-audio)

@@ -1,26 +1,32 @@
 #include "include/game.hpp"
 
+
+static constexpr unsigned int FRAMERATE = 60;
+static constexpr float MAX_FRAME_TIME = 0.25f;
+static constexpr float FIXED_DT = 1.f / FRAMERATE;
+
 void Game::pollEvent()
 {
     while (const std::optional<sf::Event> event = m_window->pollEvent())
     {
         if (event->is<sf::Event::Closed>())
+        {
             m_window->close();
+            break;
+        }
+
+        m_sceneManager.handleEvent(*event);
     }
 }
 
 void Game::update(const float dt)
 {
-    m_sprite->move({ 1 * dt, 1 * dt });
+    m_sceneManager.update(dt);
 }
 
 void Game::draw()
 {
-    m_window->clear();
-
-    m_window->draw(*m_sprite);
-
-    m_window->display();
+    m_sceneManager.draw(*m_window);
 }
 
 Game::Game(const std::string& title, const sf::Vector2u& size)
@@ -29,33 +35,37 @@ Game::Game(const std::string& title, const sf::Vector2u& size)
         sf::VideoMode(size),
         title
     );
-
-    m_window->setFramerateLimit(60);
-
-    m_texture = std::make_unique<sf::Texture>("../assets/textures/flowery.jpg");
-
-    const sf::Vector2u texture_size = m_texture->getSize();
-
-    m_sprite = std::make_unique<sf::Sprite>(*m_texture);
-
-    const auto scale = sf::Vector2f(
-         static_cast<float>(size.x) / static_cast<float>(texture_size.x),
-         static_cast<float>(size.y) / static_cast<float>(texture_size.y)
-    );
-
-    m_sprite->setScale(scale);
-}
-
-Game::~Game()
-{
+    m_window->setVerticalSyncEnabled(true);
+    m_window->setFramerateLimit(FRAMERATE);
 }
 
 void Game::execute()
 {
+    float accumulator = 0.0f;
+
     while (m_window->isOpen())
     {
         pollEvent();
-        update(1.f);
+        const float dt = std::min(m_clock.restart().asSeconds(), MAX_FRAME_TIME);
+
+        accumulator += dt;
+
+        while (accumulator >= FIXED_DT)
+        {
+            update(FIXED_DT);
+            accumulator -= FIXED_DT;
+        }
+
         draw();
     }
+}
+
+sf::RenderWindow& Game::getWindow() const
+{
+    return *m_window;
+}
+
+SceneManager& Game::getSceneManager()
+{
+    return m_sceneManager;
 }
