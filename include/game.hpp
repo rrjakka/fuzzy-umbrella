@@ -8,6 +8,8 @@ class Game
 {
 private:
     std::unique_ptr<sf::RenderWindow> m_window;
+    std::unique_ptr<sf::Sprite> m_sprite;
+    std::unique_ptr<sf::Texture> m_texture;
 
     void pollEvent();
     void update(float dt);
